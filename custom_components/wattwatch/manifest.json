@@ -1,10 +1,11 @@
 {
   "domain": "wattwatch",
   "name": "WattWatch",
-  "codeowners": [],
+  "codeowners": ["@Voder"],
   "config_flow": true,
-  "documentation": "https://github.com/wattwatch/wattwatch",
+  "documentation": "https://github.com/Voder/wattwatch",
   "iot_class": "local_push",
+  "issue_tracker": "https://github.com/Voder/wattwatch/issues",
   "requirements": [],
   "version": "1.0.0"
 }
