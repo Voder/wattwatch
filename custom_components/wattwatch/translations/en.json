@@ -17,6 +17,10 @@
           "cooldown": "Event cooldown (seconds)",
           "min_samples": "Minimum samples before detection"
         }
+      },
+      "directions": {
+        "title": "Monitor Direction",
+        "description": "For each entity, select whether to detect high consumption (spikes), low consumption (drops), or both."
       }
     },
     "error": {
@@ -34,6 +38,10 @@
           "cooldown": "Event cooldown (seconds)",
           "min_samples": "Minimum samples before detection"
         }
+      },
+      "directions": {
+        "title": "Monitor Direction",
+        "description": "For each entity, select whether to detect high consumption (spikes), low consumption (drops), or both."
       }
     }
   }

@@ -29,3 +29,10 @@ STORAGE_VERSION = 1
 # Anomaly types
 ANOMALY_TYPE_SPIKE = "spike"
 ANOMALY_TYPE_DROP = "drop"
+
+# Monitor direction
+CONF_MONITOR_DIRECTIONS = "monitor_directions"
+DIRECTION_BOTH = "both"
+DIRECTION_HIGH = "high"
+DIRECTION_LOW = "low"
+DEFAULT_DIRECTION = DIRECTION_BOTH
