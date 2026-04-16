@@ -1,0 +1,40 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Select Power Entities",
+        "description": "Choose which power sensors to monitor for anomalies.",
+        "data": {
+          "entities": "Power entities to monitor"
+        }
+      },
+      "options": {
+        "title": "Detection Settings",
+        "description": "Configure anomaly detection parameters.",
+        "data": {
+          "window_size": "Window size (samples)",
+          "threshold": "Z-score threshold",
+          "cooldown": "Event cooldown (seconds)",
+          "min_samples": "Minimum samples before detection"
+        }
+      }
+    },
+    "error": {
+      "no_entities": "Please select at least one entity."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "WattWatch Settings",
+        "data": {
+          "entities": "Power entities to monitor",
+          "window_size": "Window size (samples)",
+          "threshold": "Z-score threshold",
+          "cooldown": "Event cooldown (seconds)",
+          "min_samples": "Minimum samples before detection"
+        }
+      }
+    }
+  }
+}
