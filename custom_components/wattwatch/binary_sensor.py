@@ -64,6 +64,9 @@ class WattWatchAnomalySensor(BinarySensorEntity):
             "stdev": self._result.stdev,
             "sample_count": self._result.sample_count,
             "monitored_entity": self._monitored_entity_id,
+            "monitor_direction": self._coordinator.get_direction(
+                self._monitored_entity_id
+            ),
         }
 
     async def async_added_to_hass(self) -> None:

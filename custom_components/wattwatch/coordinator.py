@@ -26,15 +26,21 @@ from homeassistant.helpers.storage import Store
 
 from .anomaly import AnomalyDetector, AnomalyResult
 from .const import (
+    ANOMALY_TYPE_DROP,
+    ANOMALY_TYPE_SPIKE,
     CONF_COOLDOWN,
     CONF_ENTITIES,
     CONF_MIN_SAMPLES,
+    CONF_MONITOR_DIRECTIONS,
     CONF_THRESHOLD,
     CONF_WINDOW_SIZE,
     DEFAULT_COOLDOWN,
+    DEFAULT_DIRECTION,
     DEFAULT_MIN_SAMPLES,
     DEFAULT_THRESHOLD,
     DEFAULT_WINDOW_SIZE,
+    DIRECTION_HIGH,
+    DIRECTION_LOW,
     EVENT_ANOMALY_DETECTED,
     STORAGE_KEY,
     STORAGE_VERSION,
@@ -83,6 +89,24 @@ class WattWatchCoordinator:
     @property
     def _cooldown(self) -> int:
         return self.entry.options.get(CONF_COOLDOWN, DEFAULT_COOLDOWN)
+
+    def get_direction(self, entity_id: str) -> str:
+        """Return monitor direction for an entity."""
+        directions = self.entry.options.get(CONF_MONITOR_DIRECTIONS, {})
+        return directions.get(entity_id, DEFAULT_DIRECTION)
+
+    def _is_anomaly_for_direction(
+        self, entity_id: str, result: AnomalyResult
+    ) -> bool:
+        """Check if anomaly matches configured direction for entity."""
+        if not result.is_anomaly:
+            return False
+        direction = self.get_direction(entity_id)
+        if direction == DIRECTION_HIGH:
+            return result.anomaly_type == ANOMALY_TYPE_SPIKE
+        if direction == DIRECTION_LOW:
+            return result.anomaly_type == ANOMALY_TYPE_DROP
+        return True  # "both"
 
     async def async_start(self) -> None:
         """Start monitoring: restore state, subscribe to changes."""
@@ -156,6 +180,21 @@ class WattWatchCoordinator:
             return
 
         result = detector.add_sample(value)
+
+        # Apply direction filter: replace is_anomaly based on configured direction
+        direction_match = self._is_anomaly_for_direction(entity_id, result)
+        if result.is_anomaly and not direction_match:
+            # Anomaly detected but not for configured direction — mask it
+            result = AnomalyResult(
+                is_anomaly=False,
+                anomaly_type=None,
+                z_score=result.z_score,
+                current_value=result.current_value,
+                mean=result.mean,
+                stdev=result.stdev,
+                sample_count=result.sample_count,
+            )
+
         self._anomaly_states[entity_id] = result
 
         # Fire event with cooldown
