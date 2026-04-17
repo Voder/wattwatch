@@ -30,6 +30,9 @@ STORAGE_VERSION = 1
 ANOMALY_TYPE_SPIKE = "spike"
 ANOMALY_TYPE_DROP = "drop"
 
+# Diagnostic sensor types
+DIAGNOSTIC_SENSOR_TYPES = ("z_score", "mean", "stdev")
+
 # Monitor direction
 CONF_MONITOR_DIRECTIONS = "monitor_directions"
 DIRECTION_BOTH = "both"

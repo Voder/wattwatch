@@ -5,14 +5,37 @@ from __future__ import annotations
 import logging
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import entity_registry as er
 
-from .const import DOMAIN, PLATFORMS
+from .const import DIAGNOSTIC_SENSOR_TYPES, DOMAIN, PLATFORMS
 from .coordinator import WattWatchCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
 type WattWatchConfigEntry = ConfigEntry[WattWatchCoordinator]
+
+
+@callback
+def _async_cleanup_orphaned_entities(
+    hass: HomeAssistant,
+    entry: WattWatchConfigEntry,
+    monitored_entities: list[str],
+) -> None:
+    """Remove entity registry entries for entities no longer monitored."""
+    registry = er.async_get(hass)
+
+    valid_unique_ids: set[str] = set()
+    for entity_id in monitored_entities:
+        name = entity_id.split(".")[-1]
+        valid_unique_ids.add(f"wattwatch_{name}_anomaly")
+        for sensor_type in DIAGNOSTIC_SENSOR_TYPES:
+            valid_unique_ids.add(f"wattwatch_{name}_{sensor_type}")
+
+    for reg_entry in er.async_entries_for_config_entry(registry, entry.entry_id):
+        if reg_entry.unique_id not in valid_unique_ids:
+            _LOGGER.debug("Removing orphaned entity %s", reg_entry.entity_id)
+            registry.async_remove(reg_entry.entity_id)
 
 
 async def async_setup_entry(
@@ -23,6 +46,8 @@ async def async_setup_entry(
     await coordinator.async_start()
 
     entry.runtime_data = coordinator
+
+    _async_cleanup_orphaned_entities(hass, entry, coordinator.monitored_entities)
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
