@@ -24,14 +24,18 @@ from homeassistant.helpers.selector import (
 )
 
 from .const import (
+    CONF_CONSECUTIVE_REQUIRED,
     CONF_COOLDOWN,
     CONF_ENTITIES,
+    CONF_MIN_DEVIATION,
     CONF_MIN_SAMPLES,
     CONF_MONITOR_DIRECTIONS,
     CONF_THRESHOLD,
     CONF_WINDOW_SIZE,
+    DEFAULT_CONSECUTIVE_REQUIRED,
     DEFAULT_COOLDOWN,
     DEFAULT_DIRECTION,
+    DEFAULT_MIN_DEVIATION,
     DEFAULT_MIN_SAMPLES,
     DEFAULT_THRESHOLD,
     DEFAULT_WINDOW_SIZE,
@@ -81,6 +85,20 @@ OPTIONS_SCHEMA = vol.Schema(
         ): NumberSelector(
             NumberSelectorConfig(
                 min=3, max=50, step=1, mode=NumberSelectorMode.BOX
+            )
+        ),
+        vol.Required(
+            CONF_MIN_DEVIATION, default=DEFAULT_MIN_DEVIATION
+        ): NumberSelector(
+            NumberSelectorConfig(
+                min=0.0, max=1000.0, step=0.1, mode=NumberSelectorMode.BOX
+            )
+        ),
+        vol.Required(
+            CONF_CONSECUTIVE_REQUIRED, default=DEFAULT_CONSECUTIVE_REQUIRED
+        ): NumberSelector(
+            NumberSelectorConfig(
+                min=1, max=20, step=1, mode=NumberSelectorMode.BOX
             )
         ),
     }
@@ -172,6 +190,12 @@ class WattWatchConfigFlow(ConfigFlow, domain=DOMAIN):
                     CONF_THRESHOLD: float(self._options_input[CONF_THRESHOLD]),
                     CONF_COOLDOWN: int(self._options_input[CONF_COOLDOWN]),
                     CONF_MIN_SAMPLES: int(self._options_input[CONF_MIN_SAMPLES]),
+                    CONF_MIN_DEVIATION: float(
+                        self._options_input[CONF_MIN_DEVIATION]
+                    ),
+                    CONF_CONSECUTIVE_REQUIRED: int(
+                        self._options_input[CONF_CONSECUTIVE_REQUIRED]
+                    ),
                     CONF_MONITOR_DIRECTIONS: {
                         entity_id: user_input[entity_id]
                         for entity_id in self._entities
@@ -218,6 +242,10 @@ class WattWatchOptionsFlow(OptionsFlow):
                 CONF_THRESHOLD: float(user_input[CONF_THRESHOLD]),
                 CONF_COOLDOWN: int(user_input[CONF_COOLDOWN]),
                 CONF_MIN_SAMPLES: int(user_input[CONF_MIN_SAMPLES]),
+                CONF_MIN_DEVIATION: float(user_input[CONF_MIN_DEVIATION]),
+                CONF_CONSECUTIVE_REQUIRED: int(
+                    user_input[CONF_CONSECUTIVE_REQUIRED]
+                ),
             }
             return await self.async_step_directions()
 
@@ -265,6 +293,26 @@ class WattWatchOptionsFlow(OptionsFlow):
                 ): NumberSelector(
                     NumberSelectorConfig(
                         min=3, max=50, step=1, mode=NumberSelectorMode.BOX
+                    )
+                ),
+                vol.Required(
+                    CONF_MIN_DEVIATION,
+                    default=current.get(
+                        CONF_MIN_DEVIATION, DEFAULT_MIN_DEVIATION
+                    ),
+                ): NumberSelector(
+                    NumberSelectorConfig(
+                        min=0.0, max=1000.0, step=0.1, mode=NumberSelectorMode.BOX
+                    )
+                ),
+                vol.Required(
+                    CONF_CONSECUTIVE_REQUIRED,
+                    default=current.get(
+                        CONF_CONSECUTIVE_REQUIRED, DEFAULT_CONSECUTIVE_REQUIRED
+                    ),
+                ): NumberSelector(
+                    NumberSelectorConfig(
+                        min=1, max=20, step=1, mode=NumberSelectorMode.BOX
                     )
                 ),
             }
