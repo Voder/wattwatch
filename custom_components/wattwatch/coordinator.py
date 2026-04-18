@@ -28,14 +28,18 @@ from .anomaly import AnomalyDetector, AnomalyResult
 from .const import (
     ANOMALY_TYPE_DROP,
     ANOMALY_TYPE_SPIKE,
+    CONF_CONSECUTIVE_REQUIRED,
     CONF_COOLDOWN,
     CONF_ENTITIES,
+    CONF_MIN_DEVIATION,
     CONF_MIN_SAMPLES,
     CONF_MONITOR_DIRECTIONS,
     CONF_THRESHOLD,
     CONF_WINDOW_SIZE,
+    DEFAULT_CONSECUTIVE_REQUIRED,
     DEFAULT_COOLDOWN,
     DEFAULT_DIRECTION,
+    DEFAULT_MIN_DEVIATION,
     DEFAULT_MIN_SAMPLES,
     DEFAULT_THRESHOLD,
     DEFAULT_WINDOW_SIZE,
@@ -90,6 +94,16 @@ class WattWatchCoordinator:
     def _cooldown(self) -> int:
         return self.entry.options.get(CONF_COOLDOWN, DEFAULT_COOLDOWN)
 
+    @property
+    def _min_deviation(self) -> float:
+        return self.entry.options.get(CONF_MIN_DEVIATION, DEFAULT_MIN_DEVIATION)
+
+    @property
+    def _consecutive_required(self) -> int:
+        return self.entry.options.get(
+            CONF_CONSECUTIVE_REQUIRED, DEFAULT_CONSECUTIVE_REQUIRED
+        )
+
     def get_direction(self, entity_id: str) -> str:
         """Return monitor direction for an entity."""
         directions = self.entry.options.get(CONF_MONITOR_DIRECTIONS, {})
@@ -119,6 +133,17 @@ class WattWatchCoordinator:
                     window_size=self._window_size,
                     threshold=self._threshold,
                     min_samples=self._min_samples,
+                    min_deviation=self._min_deviation,
+                    consecutive_required=self._consecutive_required,
+                )
+            else:
+                # Apply current options to restored detectors
+                self._detectors[entity_id].update_settings(
+                    window_size=self._window_size,
+                    threshold=self._threshold,
+                    min_samples=self._min_samples,
+                    min_deviation=self._min_deviation,
+                    consecutive_required=self._consecutive_required,
                 )
 
         # Subscribe to state changes
