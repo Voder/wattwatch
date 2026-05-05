@@ -26,8 +26,8 @@ from homeassistant.helpers.storage import Store
 
 from .anomaly import AnomalyDetector, AnomalyResult
 from .const import (
-    ANOMALY_TYPE_DROP,
-    ANOMALY_TYPE_SPIKE,
+    ANOMALY_TYPES_HIGH,
+    ANOMALY_TYPES_LOW,
     CONF_CONSECUTIVE_REQUIRED,
     CONF_COOLDOWN,
     CONF_ENTITIES,
@@ -117,9 +117,9 @@ class WattWatchCoordinator:
             return False
         direction = self.get_direction(entity_id)
         if direction == DIRECTION_HIGH:
-            return result.anomaly_type == ANOMALY_TYPE_SPIKE
+            return result.anomaly_type in ANOMALY_TYPES_HIGH
         if direction == DIRECTION_LOW:
-            return result.anomaly_type == ANOMALY_TYPE_DROP
+            return result.anomaly_type in ANOMALY_TYPES_LOW
         return True  # "both"
 
     async def async_start(self) -> None:
@@ -204,7 +204,7 @@ class WattWatchCoordinator:
         if detector is None:
             return
 
-        result = detector.add_sample(value)
+        result = detector.add_sample(value, new_state.last_changed.timestamp())
 
         # Apply direction filter: replace is_anomaly based on configured direction
         direction_match = self._is_anomaly_for_direction(entity_id, result)

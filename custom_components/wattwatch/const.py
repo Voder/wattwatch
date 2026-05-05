@@ -30,9 +30,19 @@ DEFAULT_CONSECUTIVE_REQUIRED = 3
 STORAGE_KEY = "wattwatch_window_data"
 STORAGE_VERSION = 1
 
-# Anomaly types
+# Anomaly types — non-cyclic fallback
 ANOMALY_TYPE_SPIKE = "spike"
 ANOMALY_TYPE_DROP = "drop"
+
+# Anomaly types — cyclic mode
+ANOMALY_TYPE_STUCK_ON = "stuck_on"
+ANOMALY_TYPE_STUCK_OFF = "stuck_off"
+ANOMALY_TYPE_POWER_SPIKE = "power_spike"
+ANOMALY_TYPE_POWER_DROP = "power_drop"
+
+# Direction-grouped sets (used by coordinator direction filter)
+ANOMALY_TYPES_HIGH = {ANOMALY_TYPE_SPIKE, ANOMALY_TYPE_STUCK_ON, ANOMALY_TYPE_POWER_SPIKE}
+ANOMALY_TYPES_LOW = {ANOMALY_TYPE_DROP, ANOMALY_TYPE_STUCK_OFF, ANOMALY_TYPE_POWER_DROP}
 
 # Diagnostic sensor types
 DIAGNOSTIC_SENSOR_TYPES = ("z_score", "mean", "stdev")
